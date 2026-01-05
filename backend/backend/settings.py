@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'RoadMap'
 ]
 
+JWT_SECRET = "d0431cc4fbc025bf7e4b95796aa8f202f57380da345edc0e2e52dcb7195dfa08"
+JWT_ALGORITHM = "HS256"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',

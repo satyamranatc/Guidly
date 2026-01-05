@@ -1,40 +1,23 @@
 from google import genai
+import json
 
 client = genai.Client(api_key="")
 
 def askAi(prompt):
     prmpt = f"""
-You are a **very senior career consultant** with decades of experience guiding students and professionals in India.
+You are a senior career consultant with deep experience guiding students and professionals in India.
 
-Your task is to provide **clear, practical, and epic career guidance** based on the user's query.
+Your job is to generate a structured career roadmap based on the user's query.
 
-======================
-STRICT RULES (MANDATORY)
-======================
+Return the response strictly as a valid JSON object that follows the schema below.
+Do not include explanations, markdown, comments, or extra text.
 
-1. The response **MUST be in valid JSON only**.
-2. Do **NOT** include:
-   - Markdown
-   - Code blocks
-   - Explanations
-   - Comments
-   - Extra text before or after JSON
-3. The JSON must be **machine-parseable**.
-4. Language should be **simple, friendly, and motivating**, with **light Indian humor** (subtle, not cringe).
-5. Follow the **exact JSON structure** given below.
-6. Do not rename, remove, or add fields.
-7. Estimated time must be realistic and mentioned in **days only**.
-8. Book authors must be **real and correct**.
-9. YouTube links must be **real and relevant**.
-
-======================
-RESPONSE FORMAT (STRICT)
-======================
+JSON SCHEMA (MUST MATCH EXACTLY):
 
 {{
   "greetings": "short friendly greeting",
   "roadmapTitle": "short and catchy roadmap title",
-  "roadmapDesc": "2–3 line roadmap overview",
+  "roadmapDesc": "2–3 line overview of the roadmap",
   "roadmapSteps": [
     {{
       "stepTitle": "short step title",
@@ -46,27 +29,39 @@ RESPONSE FORMAT (STRICT)
     "books": [
       {{
         "bookTitle": "book title",
-        "bookAuthor": "actual author name",
+        "bookAuthor": "real author name",
         "bookDesc": "short practical description"
       }}
     ],
     "videos": [
-      "https://youtube.com/actual-link-1",
-      "https://youtube.com/actual-link-2"
+      "valid YouTube URL",
+      "valid YouTube URL"
     ]
   }},
-  "lastWords": "short motivational closing line"
+  "lastWords": "short motivating closing line"
 }}
 
-======================
-USER QUERY
-======================
+Constraints:
+- Output must be valid JSON.
+- All fields must be present and non-empty.
+- Estimated time must be in days only.
+- Authors and YouTube links must be real.
+- Tone should be simple, motivating, and friendly with subtle Indian context.
 
+User Query:
 {prompt}
 """
 
     response = client.models.generate_content(
         model="gemini-2.5-flash",
+        config={
+            "response_mime_type": "application/json"
+        },
         contents=prmpt
     )
-    return str(response)
+
+    try:
+        return json.loads(response.text)
+    except json.JSONDecodeError:
+        print("RAW OUTPUT:", response.text)
+        raise ValueError("AI returned invalid JSON")
