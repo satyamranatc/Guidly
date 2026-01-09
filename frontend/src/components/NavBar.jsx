@@ -1,83 +1,112 @@
-import React,{useContext} from 'react'
-import { Link } from 'react-router-dom'
-import { UserContext } from '../context/UserData'
-
+import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
+import { UserContext } from "../context/UserData";
+import { Menu, X, Compass } from "lucide-react";
 
 export default function NavBar() {
-  let {token} = useContext(UserContext)
-  return (
-    <nav className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 shadow-lg">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+  const { token } = useContext(UserContext);
+  const [isOpen, setIsOpen] = useState(false);
 
-        {/* Logo Section */}
-        <div id="LogoSection" className="text-white">
-          <h2 className="text-2xl font-bold tracking-wide">
-            <Link to="/" className="hover:text-yellow-300 transition">
-              The Guidly
-            </Link>
-          </h2>
-          <p className="text-sm text-indigo-100">
-            Find your next adventure
-          </p>
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  const navLinks = [
+    { name: "Home", path: "/" },
+    { name: "Roadmap", path: "/roadmap" },
+    { name: "News", path: "/news" },
+    { name: "Jobs", path: "/jobs" },
+  ];
+
+  return (
+    <nav className="w-full bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
+      <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          {/* Logo Section */}
+          <div id="LogoSection" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+              <Compass size={20} />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight text-slate-900">
+              <Link to="/" className="hover:text-indigo-600 transition">
+                Guidly
+              </Link>
+            </h2>
+          </div>
+
+          {/* Desktop Navigation */}
+          <ul className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <li key={link.name}>
+                <Link
+                  to={link.path}
+                  className="text-slate-600 hover:text-indigo-600 font-medium transition duration-200"
+                >
+                  {link.name}
+                </Link>
+              </li>
+            ))}
+            {token?.access_token ? (
+              <li>
+                <Link
+                  to="/profile"
+                  className="px-5 py-2.5 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
+                >
+                  Profile
+                </Link>
+              </li>
+            ) : (
+              <li>
+                <Link
+                  to="/auth"
+                  className="px-5 py-2.5 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
+                >
+                  Sign In
+                </Link>
+              </li>
+            )}
+          </ul>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={toggleMenu}
+            className="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition"
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
 
-        {/* Navigation Links */}
-        <ul className="flex items-center space-x-6 text-white font-medium">
-          <li>
-            <Link
-              to="/"
-              className="hover:text-yellow-300 transition duration-200"
-            >
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/roadmap"
-              className="hover:text-yellow-300 transition duration-200"
-            >
-              Roadmap
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/news"
-              className="hover:text-yellow-300 transition duration-200"
-            >
-              News
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/jobs"
-              className="hover:text-yellow-300 transition duration-200"
-            >
-              Jobs
-            </Link>
-          </li>
-          {
-            token.access_token == null ?
-            <li>
+        {/* Mobile Navigation */}
+        {isOpen && (
+          <div className="md:hidden pt-4 pb-6 space-y-4 animate-in slide-in-from-top-4 duration-200">
+            {navLinks.map((link) => (
               <Link
-                to="/auth"
-                className="hover:text-yellow-300 transition duration-200"
+                key={link.name}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className="block text-slate-600 hover:text-indigo-600 font-medium py-2"
               >
-                Auth
+                {link.name}
               </Link>
-            </li>
-            :
-            <li>
+            ))}
+            {token?.access_token ? (
               <Link
                 to="/profile"
-                className="hover:text-yellow-300 transition duration-200"
+                onClick={() => setIsOpen(false)}
+                className="block text-center px-5 py-2.5 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
               >
                 Profile
               </Link>
-            </li>
-          }
-        </ul>
-
+            ) : (
+              <Link
+                to="/auth"
+                onClick={() => setIsOpen(false)}
+                className="block text-center px-5 py-2.5 bg-indigo-600 text-white rounded-full font-semibold hover:bg-indigo-700 transition"
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </nav>
-  )
+  );
 }

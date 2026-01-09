@@ -21,6 +21,7 @@ class ResourcesSerializer(serializers.Serializer):
 
 class RoadMapSerializer(serializers.Serializer):
     greetings = serializers.CharField()
+    author = serializers.CharField()
     roadmapTitle = serializers.CharField()
     roadmapDesc = serializers.CharField()
     roadmapSteps = RoadMapStepSerializer(many=True)
